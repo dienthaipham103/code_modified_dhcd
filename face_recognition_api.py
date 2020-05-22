@@ -66,7 +66,6 @@ model = intelligo_face.app.FaceAnalysis()
 image_size = (112, 112)
 
 
-# done
 def init_model():
     global model
 
@@ -82,51 +81,50 @@ def init_model():
                   max_img_size=int(MAX_INPUT_SIZE))
 
 
-# done
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def random_string(length):
-   return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
+# def random_string(length):
+#    return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
 
 
-def download_files(bucket_name, image_name_input, image_name_output):
-    logger.info('[REST-API] Downloading files ...')
-    # connect to the bucket
-    conn = boto.connect_s3(AWS_ACCESS_KEY_ID,
-                           AWS_SECRET_ACCESS_KEY)
-    logger.info('[REST-API] Access granted to bucket')
-    bucket = conn.get_bucket(bucket_name)
-    # go through the list of files
-    bucket_list = bucket.list()
+# def download_files(bucket_name, image_name_input, image_name_output):
+#     logger.info('[REST-API] Downloading files ...')
+#     # connect to the bucket
+#     conn = boto.connect_s3(AWS_ACCESS_KEY_ID,
+#                            AWS_SECRET_ACCESS_KEY)
+#     logger.info('[REST-API] Access granted to bucket')
+#     bucket = conn.get_bucket(bucket_name)
+#     # go through the list of files
+#     bucket_list = bucket.list()
+#
+#     for bucket_file in bucket_list:
+#         file_path = str(bucket_file.key)
+#         if file_path.endswith(image_name_input):
+#             try:
+#                 bucket_file.get_contents_to_filename(image_name_output)
+#
+#             except Exception as e:
+#                 logger.info("[Face-Recognition] Trouble in saving file: {0}".format(e))
+#
+#     logger.info('[REST-API] Files downloaded')
 
-    for bucket_file in bucket_list:
-        file_path = str(bucket_file.key)
-        if file_path.endswith(image_name_input):
-            try:
-                bucket_file.get_contents_to_filename(image_name_output)
 
-            except Exception as e:
-                logger.info("[Face-Recognition] Trouble in saving file: {0}".format(e))
-
-    logger.info('[REST-API] Files downloaded')
-
-
-def upload_files(bucket_name, image_name_input, image_name_output):
-    logger.info('[REST-API] Uploading files ...')
-
-    # connect to the bucket
-    conn = boto.connect_s3(AWS_ACCESS_KEY_ID,
-                           AWS_SECRET_ACCESS_KEY)
-
-    logger.info('[REST-API] Accessing S3 bucket...')
-    bucket = conn.get_bucket(bucket_name)
-
-    k = bucket.new_key(image_name_output)
-    k.set_contents_from_filename(image_name_input)
-
-    logger.info('[REST-API] Files uploaded')
+# def upload_files(bucket_name, image_name_input, image_name_output):
+#     logger.info('[REST-API] Uploading files ...')
+#
+#     # connect to the bucket
+#     conn = boto.connect_s3(AWS_ACCESS_KEY_ID,
+#                            AWS_SECRET_ACCESS_KEY)
+#
+#     logger.info('[REST-API] Accessing S3 bucket...')
+#     bucket = conn.get_bucket(bucket_name)
+#
+#     k = bucket.new_key(image_name_output)
+#     k.set_contents_from_filename(image_name_input)
+#
+#     logger.info('[REST-API] Files uploaded')
 
 
 # def upload_folder(bucket_name, image_folder, key):
@@ -150,7 +148,6 @@ def upload_files(bucket_name, image_name_input, image_name_output):
 #     logger.info('[REST-API] Folder <{}> uploaded'.format(image_folder))
 
 
-# done
 def update_model(model_file_name, key):
     os.system('python ./faces_embedding_512.py --dataset={} --key={}'.format(NEW_IMAGE_FOLDER, key))
     os.system('python ./train_softmax.py --model={} --key={}'.format(model_file_name, key))
@@ -168,7 +165,7 @@ def update_model(model_file_name, key):
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
 
-        # notify other query engines ?????????????????????????????????????????????????????????????
+        # notify other query engines ???????????????????
         for host_name in WORKER_ENGINE_LIST:
             logger.info('[REST_API] Notify ' + host_name + '/notify/model')
             requests.get(host_name + '/notify/model', headers={'x-access-key': API_ACCESS_KEY[0]})
@@ -177,7 +174,6 @@ def update_model(model_file_name, key):
         print(e)
 
 
-# api
 # def add_face(name, img_file):
 #     logger.info("[REST-API] Add Face Processing === {} ===".format(img_file))
 #     image = cv2.imread(img_file)
@@ -198,7 +194,6 @@ def update_model(model_file_name, key):
 #         requests.post(url=host_name + '/notify/face/' + name, json=data, headers={'x-access-key': API_ACCESS_KEY[0]})
 
 
-# api-done
 class RetrainModel(Resource):
     def post(self):
         logger.info('[REST-API] Received a POST Call for retrain model')
@@ -229,7 +224,6 @@ class RetrainModel(Resource):
         return 'ok'
 
 
-# api-done
 class FaceQuery(Resource):
     def post(self):
         logger.info('[REST-API] Received a POST Call for face query')
@@ -286,7 +280,6 @@ class FaceQuery(Resource):
         return 'ok'
 
 
-# api
 # class FaceAdd(Resource):
 #     def post(self, face_id):
 #         logger.info('[REST-API] Received a POST Call for adding face_id <{}>'.format(face_id))
@@ -336,7 +329,6 @@ class FaceQuery(Resource):
 #         return 'ok'
 
 
-# api
 class FacePosition(Resource):
     def post(self):
         logger.info('[REST-API] Received a face lookup...')
@@ -370,14 +362,12 @@ class FacePosition(Resource):
         return 'ok'
 
 
-# api-done
 class Download(Resource):
     def get(self, filename):
         logger.info('[REST-API] Received a download: ' + filename)
         return send_from_directory(os.path.realpath('./models'), filename)
 
 
-# done
 def init_arg():
 
     arg_parser = argparse.ArgumentParser(conflict_handler='resolve')
@@ -392,7 +382,6 @@ def init_arg():
     args_glob = arg_parser.parse_args()
 
 
-# done
 if __name__ == "__main__":
 
     init_arg()
